@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Romn.ai</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --orange: #ff5c00;
+            --blue: #0009ec;
+            --bg: #edebe1;
+            --fg: #2a2725;
+            --dim: #7a756b;
+            --line: #a69e8e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { height: 100%; }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            min-height: 100%;
+            padding: 2rem 1rem 0;
+        }
+
+        .terminal {
+            max-width: 140ch;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 2rem);
+        }
+
+        .content { flex: 1; }
+
+        .title {
+            color: var(--orange);
+            font-size: 3em;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            margin-bottom: 0.25rem;
+        }
+
+        .hr {
+            border: none;
+            border-top: 1px solid var(--line);
+            margin: 0;
+        }
+
+        .nav {
+            margin: 0.75rem 0;
+            display: flex;
+            gap: 1ch;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            color: var(--fg);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.15s;
+            white-space: nowrap;
+            background: none;
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .btn:hover, .btn:focus { color: var(--orange); }
+        .btn-blue:hover, .btn-blue:focus { color: var(--blue); }
+
+        .main {
+            display: flex;
+            gap: 4ch;
+            margin: 1rem 0 0 0;
+            align-items: flex-start;
+        }
+
+        .desc-box {
+            border: 1px solid var(--line);
+            padding: 1.25rem 1.5rem;
+            max-width: 42ch;
+            flex-shrink: 0;
+        }
+
+        .desc-box .label {
+            color: var(--orange);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .desc-box p { color: var(--fg); }
+
+        .bird {
+            flex-shrink: 0;
+            line-height: 1.1;
+            font-size: 10px;
+            user-select: none;
+            margin: 0;
+            margin-left: auto;
+            padding: 0;
+        }
+
+        .bird .g { color: #5a554b; }
+        .bird .o { color: #ff5c00; }
+
+        .section { margin: 0.75rem 0 0 0; }
+        .section + .section { margin-top: 1.5rem; }
+
+        .section-title {
+            color: var(--blue);
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .item {
+            padding: 0.4rem 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+
+        .item a { color: var(--fg); text-decoration: none; }
+        .item a:hover { color: var(--orange); }
+        .item .meta { color: var(--dim); font-size: 0.85em; }
+
+        .footer {
+            position: sticky;
+            bottom: 0;
+            background: var(--bg);
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            margin-top: auto;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            border-top: 1px solid var(--line);
+        }
+
+        .footer-group {
+            display: flex;
+            gap: 1ch;
+            flex-wrap: wrap;
+        }
+
+        /* Wide screens */
+        @media (min-width: 1600px) {
+            body { font-size: 16px; padding: 3rem 2rem 0; }
+            .title { font-size: 3.5em; }
+            .bird { font-size: 13px; }
+            .main { gap: 6ch; }
+            .desc-box { max-width: 48ch; }
+        }
+
+        @media (min-width: 2000px) {
+            body { font-size: 18px; }
+            .title { font-size: 4em; }
+            .bird { font-size: 15px; }
+            .terminal { max-width: 160ch; }
+        }
+
+        /* Tablet */
+        @media (max-width: 1000px) {
+            .bird { font-size: 8px; }
+            .desc-box { max-width: 38ch; }
+            .main { gap: 2ch; }
+        }
+
+        /* Small tablet / large phone */
+        @media (max-width: 700px) {
+            body { font-size: 13px; padding: 1rem 0.75rem 0; }
+            .title { font-size: 1.8em; letter-spacing: 0.2em; }
+            .main { flex-direction: column-reverse; align-items: center; gap: 1rem; }
+            .bird { font-size: 7px; margin-left: 0; }
+            .desc-box { max-width: 100%; width: 100%; padding: 0.75rem 1rem; }
+            .footer { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .footer-group { gap: 0.5ch; }
+        }
+
+        /* Phone */
+        @media (max-width: 480px) {
+            body { font-size: 12px; padding: 0.75rem 0.5rem 0; }
+            .title { font-size: 1.4em; letter-spacing: 0.15em; }
+            .bird { font-size: 5.5px; }
+            .desc-box { padding: 0.6rem 0.75rem; }
+            .section + .section { margin-top: 1rem; }
+        }
+
+        /* Very small phone */
+        @media (max-width: 360px) {
+            .title { font-size: 1.2em; }
+            .bird { font-size: 4.5px; }
+        }
+    </style>
+</head>
+<body>
+<div class="terminal">
+<div class="content">
+
+    <div class="title">ROMAN NEGRI</div>
+    <hr class="hr">
+    <hr class="hr">
+
+    <div class="main" id="about">
+        <div class="desc-box">
+            <div class="label">~ about</div>
+            <p>Currently a MATS fellow working on RL theory for AI safety. Previously finished a Master's in Machine Learning while conducting research at UCL DARK lab. I graudated from NYU with a Bachelors in Computer Science where I did research at NYU's Game Innovation Lab. Interested in developing general and safe solutions through open-ended algorithms with stronger theoretical understanding and guarantees.
+              <br><br>
+            If you are interested in making AI safer through a deeper and rigorous understanding, contact me I'd love to chat!</p>
+        </div>
+
+        <pre class="bird" aria-hidden="true"><span class="g">                  *:
+                  #+
+                  **=
+                  +#@=.
+                 .++@@:
+                 =++@+*.
+               ++*=+#-+
+              ++=:+#: =-
+             =+:-=%: ::
+            :#.-=#: =*
+           -@+--%+:.**
+          =@+.*#==.+++
+         =%=-%+-*-=+%:
+        -*+=##-*#=:=-
+      .:+=+#%+*+--::.
+     .:===+*+--**=+#%%%#**-
+    ...:.::::=*+*%@@@@%%#%@-
+  .:........::-*%@@%%@#*%@@@-
+..::..........:-==++--:-+#%@%
+. ::......     .      ..:..+@+
+ .=+*.....  -#@@*</span><span class="o">.:--:::</span><span class="g">   *@@=.
+ ++*%@*#*+=+%@@%+</span><span class="o">+*###*+</span><span class="g">. =#@@@#**=--.
+=@@#**+%%@@%##+:</span><span class="o">-+*###*-</span><span class="g">  .*@@@@@@@@@@%+:
+#@@#=:.==--::...:</span><span class="o">+*####+</span><span class="g">. =@@@@@@@@@@@@@%#=.
+-@%:. . .. .....-</span><span class="o">+***+=:</span><span class="g"> -@@@@@@@@@@@@@@@%#%*-
+ .+.         ........   :#@@@@@@@@@@@@@@@@@@@@#+:
+           ...       .:+%@@@@@@@@@@@@@@@@@@@@@%@%%*=.
+    ...   ...      :+#@@@@@@@@@@@@@@@@@@@@@@@@@%##@@@%*-
+   :+####*=-+*****%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%**@@@@@*-
+   .#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%@@@@@#=:
+    .#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#+
+     -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+      =@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+       +@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+         *%@@@@@@*++==@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+          +%@@@@@#-:  *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+           .#@@@@#-+.::==*##@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+           .%%@@@@=   :.    -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            .  .=@@=  .      :+++#@@*#@@@@@@@@@@@@@@@@@@@@@@@@@@%%
+                 =@@@#=.        .=+=:+%##%#++%@@@@@@@@@@@@@@@@@#*@
+                 :%@**%@*:                    :%@*=-*%@@@@@@@@@@@@
+             ::.+*+++-:.=*%#=:            .  :--..    .:--#+--::::
+            ::--**=---:-=*#%#%@#.     .           . ...
+                           -#@@@*
+                              :=*#+-</span></pre>
+    </div>
+
+    <div class="section" id="research">
+        <div class="section-title">~ research interests</div>
+        <div class="item">Reinforcement Learning Theory</div>
+        <div class="item">AI Safety &amp; Alignment</div>
+        <div class="item">Open-Ended Algorithms</div>
+        <div class="item">Multi-Agent Systems</div>
+    </div>
+
+    <div class="section" id="papers">
+        <div class="section-title">~ selected papers</div>
+          <div class="item">WEBSITE STILL UNDER CONSTRUCTION! check back in a few days, for now papers on google scholar :)</div>
+        <!-- <div class="item"> -->
+        <!--     <a href="#">Paper Title Goes Here</a> -->
+        <!--     <div class="meta">Conference 2025 · with Collaborators</div> -->
+        <!-- </div> -->
+        <!-- <div class="item"> -->
+        <!--     <a href="#">Another Paper Title</a> -->
+        <!--     <div class="meta">Workshop 2024 · with Collaborators</div> -->
+        <!-- </div> -->
+    </div>
+
+</div>
+
+    <div class="footer">
+        <div class="footer-group">
+            <span class="btn btn-blue">[ Contact Me at: [first name].[last name] [at] gmail.com]</span>
+        </div>
+        <div class="footer-group">
+            <a class="btn" href="https://github.com/romanoneg" target="_blank">[ GitHub ]</a>
+            <a class="btn" href="https://twitter.com/romanoneg" target="_blank">[ Twitter ]</a>
+            <a class="btn" href="https://linkedin.com/in/romanoneg" target="_blank">[ LinkedIn ]</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
