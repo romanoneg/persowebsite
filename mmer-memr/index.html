@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEMR vs MMER Policy Comparison</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f0;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --text-tertiary: #999999;
+    --border: rgba(0,0,0,0.12);
+    --grid: rgba(0,0,0,0.06);
+    --tick: rgba(0,0,0,0.5);
+    --purple: #534AB7;
+    --teal: #1D9E75;
+    --gray: #888780;
+    --coral: #D85A30;
+    --radius: 8px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a0a0a0;
+      --text-tertiary: #707070;
+      --border: rgba(255,255,255,0.12);
+      --grid: rgba(255,255,255,0.08);
+      --tick: rgba(255,255,255,0.5);
+      --purple: #AFA9EC;
+      --teal: #5DCAA5;
+      --gray: #B4B2A9;
+      --coral: #F0997B;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    line-height: 1.6;
+  }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.25rem; }
+  .subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5; }
+  .slider-row { display: flex; align-items: center; gap: 12px; margin: 0 0 1rem; }
+  .slider-row label { font-size: 14px; color: var(--text-secondary); min-width: 30px; }
+  .slider-row input[type=range] { flex: 1; height: 4px; -webkit-appearance: none; appearance: none; background: var(--border); border-radius: 2px; outline: none; }
+  .slider-row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--text-primary); cursor: pointer; }
+  .slider-row input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--text-primary); cursor: pointer; border: none; }
+  .slider-row .val { font-size: 14px; font-weight: 500; min-width: 40px; text-align: right; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .card { background: var(--bg-secondary); border-radius: var(--radius); padding: 0.75rem 1rem; }
+  .card .label { font-size: 12px; color: var(--text-tertiary); margin-bottom: 2px; }
+  .card .value { font-size: 16px; font-weight: 500; }
+  .card .note { font-size: 11px; color: var(--text-tertiary); }
+  .section-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin: 1.5rem 0 4px; }
+  .chart-wrap { position: relative; width: 100%; }
+  .chart-wrap.tall { height: 240px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; font-size: 12px; color: var(--text-secondary); }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .legend .dot { width: 10px; height: 10px; border-radius: 2px; }
+  .math-block { background: var(--bg-secondary); border-radius: var(--radius); padding: 1rem 1.25rem; margin: 1rem 0; font-size: 14px; overflow-x: auto; }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+</head>
+<body>
+
+<h1>MEMR vs MMER policy comparison</h1>
+<p class="subtitle">
+  Comparing two decision rules under uncertainty over games, parameterized by safe-action payoff <em>c</em> and prior weight <em>p</em><sub>1</sub>.
+</p>
+
+<div class="definitions">
+  <strong>Setup:</strong> Two games with swapped specialist actions and a universally safe action paying <em>c</em>.
+</div>
+<div class="math-block" id="math-games"></div>
+
+
+<div class="callout" id="callout" style="display:none;">
+  <strong>Non-uniqueness region:</strong> The MEMR objective is linear in a<sub>1</sub> with slope (p<sub>2</sub> &minus; p<sub>1</sub>).
+  Near p<sub>1</sub> = p<sub>2</sub>, this slope is nearly zero, so the shaded band shows the full set of optimal a<sub>1</sub> values
+  &mdash; all achieving virtually the same regret. The solid line shows the extreme-point optimum, which jumps
+  discontinuously at p<sub>1</sub> = 0.50. This is a genuine LP degeneracy, not a numerical artifact.
+</div>
+
+<div class="slider-row">
+  <label>p<sub>1</sub></label>
+  <input type="range" min="0.01" max="0.99" step="0.01" value="0.70" id="p1slider">
+  <span class="val" id="p1val">0.70</span>
+</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="label">MMER drops a<sub>2</sub></div>
+    <div class="value" id="thresh1">c = 0.210</div>
+    <div class="note">p<sub>1</sub>p<sub>2</sub></div>
+  </div>
+  <div class="card">
+    <div class="label">MEMR drops a<sub>2</sub></div>
+    <div class="value" id="thresh2">c = 0.300</div>
+    <div class="note">min(p<sub>1</sub>, p<sub>2</sub>)</div>
+  </div>
+  <div class="card">
+    <div class="label">MMER goes pure a<sub>3</sub></div>
+    <div class="value" id="thresh3">c = 0.700</div>
+    <div class="note">max(p<sub>1</sub>, p<sub>2</sub>)</div>
+  </div>
+  <div class="card">
+    <div class="label">MEMR goes pure a<sub>3</sub></div>
+    <div class="value" id="thresh4">c = 0.700</div>
+    <div class="note">max(p<sub>1</sub>, p<sub>2</sub>)</div>
+  </div>
+</div>
+
+<div class="section-label">MEMR policy (per-game oracle) &mdash; shaded = set of all optimal a<sub>1</sub></div>
+<div class="chart-wrap tall"><canvas id="ch1"></canvas></div>
+
+<div class="section-label">MMER policy (average-game oracle)</div>
+<div class="chart-wrap tall"><canvas id="ch2"></canvas></div>
+
+<div class="legend">
+  <span><span class="dot" style="background: var(--purple);"></span>a<sub>1</sub></span>
+  <span><span class="dot" style="background: var(--teal);"></span>a<sub>2</sub></span>
+  <span><span class="dot" style="background: var(--gray);"></span>a<sub>3</sub></span>
+  <span><span class="dot" style="background: var(--purple); opacity:0.3;"></span>MEMR optimal band</span>
+  <span><span class="dot" style="background: var(--coral);"></span>MEMR regret</span>
+  <span><span class="dot" style="background: var(--teal);"></span>MMER regret</span>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+katex.render(String.raw`U_1 = \begin{pmatrix} 1 & 0 \\ 0 & 0 \\ c & c \end{pmatrix}, \quad U_2 = \begin{pmatrix} 0 & 0 \\ 0 & 1 \\ c & c \end{pmatrix}`, document.getElementById('math-games'), {displayMode: true});
+
+function memrPolicy(c, p1) {
+  var p2 = 1 - p1, pmin = Math.min(p1, p2), pmax = Math.max(p1, p2);
+  if (c >= pmax) return [0, 0, 1];
+  if (c >= pmin) return (p1 >= p2) ? [1 - c, 0, c] : [0, 1 - c, c];
+  if (p1 > p2) return [1 - c, c, 0];
+  if (p1 < p2) return [c, 1 - c, 0];
+  return [0.5, 0.5, 0];
+}
+
+function memrBandA1(c, p1) {
+  var p2 = 1 - p1, pmin = Math.min(p1, p2), pmax = Math.max(p1, p2);
+  if (c >= pmax) return [0, 0];
+  if (c >= pmin) {
+    var v = (p1 >= p2) ? (1 - c) : 0;
+    return [v, v];
+  }
+  return [c, 1 - c];
+}
+
+function mmerPolicy(c, p1) {
+  var p2 = 1 - p1, pmax = Math.max(p1, p2);
+  if (c >= pmax) return [0, 0, 1];
+  if (c <= p1 * p2) return [p1, p2, 0];
+  if (p1 >= p2) {
+    if (c <= p2) return [1 - p2 / p1, 0, p2 / p1];
+    return [1 - c / p1, 0, c / p1];
+  } else {
+    if (c <= p1) return [0, 1 - p1 / p2, p1 / p2];
+    return [0, 1 - c / p2, c / p2];
+  }
+}
+
+function computeRegret(pi, c, p1) {
+  var a1 = pi[0], a2 = pi[1], a3 = pi[2], p2 = 1 - p1;
+  var V1 = [Math.max(1, c), c], V2 = [c, Math.max(1, c)];
+  var R1 = Math.max(V1[0] - a1 - a3 * c, V1[1] - a3 * c);
+  var R2 = Math.max(V2[0] - a3 * c, V2[1] - a2 - a3 * c);
+  return p1 * R1 + p2 * R2;
+}
+
+function computeAvgRegret(pi, c, p1) {
+  var a1 = pi[0], a2 = pi[1], a3 = pi[2], p2 = 1 - p1;
+  var Vbar = [Math.max(p1, c), Math.max(p2, c)];
+  var Ubar1 = a1 * p1 + a3 * c, Ubar2 = a2 * p2 + a3 * c;
+  return Math.max(Vbar[0] - Ubar1, Vbar[1] - Ubar2);
+}
+
+var N = 200;
+var cs = []; for (var i = 0; i < N; i++) cs.push(i / (N - 1) * 1.2);
+var st = getComputedStyle(document.documentElement);
+var gridC = st.getPropertyValue('--grid').trim();
+var tickC = st.getPropertyValue('--tick').trim();
+var purple = st.getPropertyValue('--purple').trim();
+var teal = st.getPropertyValue('--teal').trim();
+var grayC = st.getPropertyValue('--gray').trim();
+var coral = st.getPropertyValue('--coral').trim();
+
+function opts(ymin, ymax, yl) {
+  return {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      x: { type: 'linear', min: 0, max: 1.2, title: { display: true, text: 'c', color: tickC, font: { size: 12 } }, ticks: { color: tickC, stepSize: 0.2 }, grid: { color: gridC } },
+      y: { min: ymin, max: ymax, title: yl ? { display: true, text: yl, color: tickC, font: { size: 12 } } : { display: false }, ticks: { color: tickC }, grid: { color: gridC } }
+    },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(3); } } } },
+    elements: { point: { radius: 0 }, line: { borderWidth: 2 } }
+  };
+}
+
+function build(p1) {
+  var r = { m1:[], m2:[], m3:[], bhi:[], blo:[], a1:[], a2:[], a3:[], mr:[], ar:[] };
+  for (var i = 0; i < cs.length; i++) {
+    var c = cs[i];
+    var m = memrPolicy(c, p1), b = memrBandA1(c, p1), a = mmerPolicy(c, p1);
+    r.m1.push({x:c,y:m[0]}); r.m2.push({x:c,y:m[1]}); r.m3.push({x:c,y:m[2]});
+    r.bhi.push({x:c,y:b[1]}); r.blo.push({x:c,y:b[0]});
+    r.a1.push({x:c,y:a[0]}); r.a2.push({x:c,y:a[1]}); r.a3.push({x:c,y:a[2]});
+    r.mr.push({x:c,y:computeRegret(m,c,p1)});
+    r.ar.push({x:c,y:computeAvgRegret(a,c,p1)});
+  }
+  return r;
+}
+
+var d = build(0.7);
+
+var ch1 = new Chart(document.getElementById('ch1'), {
+  type: 'line',
+  data: { datasets: [
+    { label: 'a1 band upper', data: d.bhi, borderColor: 'transparent', backgroundColor: purple + '25', fill: '+1', pointRadius: 0, borderWidth: 0 },
+    { label: 'a1 band lower', data: d.blo, borderColor: 'transparent', backgroundColor: 'transparent', fill: false, pointRadius: 0, borderWidth: 0 },
+    { label: 'a1', data: d.m1, borderColor: purple, fill: false },
+    { label: 'a2', data: d.m2, borderColor: teal, fill: false },
+    { label: 'a3', data: d.m3, borderColor: grayC, fill: false }
+  ]}, options: opts(0, 1.05, 'weight')
+});
+
+var ch2 = new Chart(document.getElementById('ch2'), {
+  type: 'line',
+  data: { datasets: [
+    { label: 'a1', data: d.a1, borderColor: purple, fill: false },
+    { label: 'a2', data: d.a2, borderColor: teal, fill: false },
+    { label: 'a3', data: d.a3, borderColor: grayC, fill: false }
+  ]}, options: opts(0, 1.05, 'weight')
+});
+
+function update(p1) {
+  var p2 = 1 - p1, pmin = Math.min(p1, p2), pmax = Math.max(p1, p2);
+  document.getElementById('p1val').textContent = p1.toFixed(2);
+  document.getElementById('thresh1').textContent = 'c = ' + (p1 * p2).toFixed(3);
+  document.getElementById('thresh2').textContent = 'c = ' + pmin.toFixed(3);
+  document.getElementById('thresh3').textContent = 'c = ' + pmax.toFixed(3);
+  document.getElementById('thresh4').textContent = 'c = ' + pmax.toFixed(3);
+  d = build(p1);
+  ch1.data.datasets[0].data = d.bhi; ch1.data.datasets[1].data = d.blo;
+  ch1.data.datasets[2].data = d.m1; ch1.data.datasets[3].data = d.m2; ch1.data.datasets[4].data = d.m3;
+  ch1.update();
+  ch2.data.datasets[0].data = d.a1; ch2.data.datasets[1].data = d.a2; ch2.data.datasets[2].data = d.a3;
+  ch2.update();
+}
+update(0.7);
+document.getElementById('p1slider').addEventListener('input', function() { update(parseFloat(this.value)); });
+</script>
+</body>
+</html>
